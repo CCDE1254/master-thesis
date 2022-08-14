@@ -5,4 +5,4 @@
  * @author QuanLiu
  *
  */
-package barrier.option;
+package master.thesis.brownianmotion;
