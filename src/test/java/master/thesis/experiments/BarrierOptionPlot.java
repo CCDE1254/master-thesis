@@ -5,6 +5,7 @@ package master.thesis.experiments;
 
 import java.util.function.DoubleUnaryOperator;
 
+import master.thesis.barrieroption.DoubleBarrierKnockOutCall;
 import master.thesis.brownianmotion.BrownianMotion;
 import master.thesis.brownianmotion.BrownianMotionGenerator;
 import master.thesis.randomnumber.MersenneTwisterSequence;
@@ -28,9 +29,9 @@ public class BarrierOptionPlot {
 	static int numberOfTimeSteps = 100;
 	
 	double upperBoundFactorB = 1.2;
-	double upperBoundExponentialDelta = 0.5;
-	double lowerBoundFactorB = 1.2;
-	double lowerBoundExponentialDelta = 0.5;
+	double upperBoundExponentialDelta1 = 0.5;
+	double lowerBoundFactorA = 1.2;
+	double lowerBoundExponentialDelta2 = 0.5;
 	int numberOfPath = 200;
 	
 	/**
@@ -60,7 +61,6 @@ public class BarrierOptionPlot {
 			plot.setYAxisLabel("Brownian motion");
 			plot.show();
 
-		
 		
 
 	}
