@@ -11,7 +11,7 @@ package master.thesis.timediscretization;
 /*
  * this class used to generate time series with equal time step size
  */
-public class TimeDiscretizationWithEqualTimeStepSize implements TimeDiscretization {
+public class TimeDiscretizationWithEqualTimeStepSize {
 
 	double startTime;
 	double endTime;
@@ -25,12 +25,10 @@ public class TimeDiscretizationWithEqualTimeStepSize implements TimeDiscretizati
 		this.numberOfTimeSteps = numberOfTimeSteps;
 	}
 
-	@Override
 	public int getNumberOfTimePoints() {
 		return numberOfTimeSteps + 1;
 	}
 
-	@Override
 	public double getTimeStepSize() {
 		double timeIntervalLength = endTime - startTime;
 		double timeStepSize = timeIntervalLength / numberOfTimeSteps;
@@ -38,7 +36,6 @@ public class TimeDiscretizationWithEqualTimeStepSize implements TimeDiscretizati
 	}
 
 
-	@Override
 	public double[] getTimeSeries() {
 		double[] timeSeries = new double[getNumberOfTimePoints()];
 		for(int i = 0; i < getNumberOfTimePoints(); i++) {

@@ -12,16 +12,16 @@ import master.thesis.barrieroption.DoubleBarrierKnockOutPut;
  */
 public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 	public static void main(String[] args) {
-	double initialStockPrice = 110.0;
+	double initialStockPrice = 100.0;
 	double riskFreeRate = 0.05;
 	double volatilityTerm = 0.25;
 	
-	double maturity = 0.25;//set evaluation time to be 0
-	double strike = 110.0;
+	double maturity = 1;//set evaluation time to be 0
+	double strike = 100.0;
 	
 	double upperBoundFactorB = 150.0;
 	double upperBoundExponentialDelta1 = 0.05;
-	double lowerBoundFactorA = 60.0;
+	double lowerBoundFactorA = 50.0;
 	double lowerBoundExponentialDelta2 = 0.05;
 	
 	DoubleBarrierKnockOutCall call = new DoubleBarrierKnockOutCall(initialStockPrice, riskFreeRate, volatilityTerm,

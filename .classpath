@@ -19,5 +19,14 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="/finmath-lib-plot-extensions"/>
+	<classpathentry kind="lib" path="C:/Users/QuanLiu/.m2/repository/org/jfree/jfreechart/1.5.2/jfreechart-1.5.2.jar" sourcepath="C:/Users/QuanLiu/.m2/repository/org/jfree/jfreechart/1.5.2/jfreechart-1.5.2-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.jfree"/>
+			<attribute name="maven.artifactId" value="jfreechart"/>
+			<attribute name="maven.version" value="1.5.2"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

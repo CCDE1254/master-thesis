@@ -4,7 +4,6 @@
 package master.thesis.randomnumber;
 
 import info.quantlab.numericalmethods.lecture.randomnumbers.MersenneTwister;
-import master.thesis.timediscretization.TimeDiscretization;
 
 /**
  * @author QuanLiu
@@ -14,25 +13,30 @@ import master.thesis.timediscretization.TimeDiscretization;
 /*
  * this class used to generate random numbers
  */
-public class MersenneTwisterSequence implements RandomNumber {
+public class MersenneTwisterSequence {
 
-	int seed;
+	int numberOfSimulations;
 	double[] timeSeries;
 	
-	public MersenneTwisterSequence(int seed, double[] timeSeries) {
+	
+	public MersenneTwisterSequence(int numberOfSimulations, double[] timeSeries) {
 		super();
-		this.seed = seed;
+		this.numberOfSimulations = numberOfSimulations;
 		this.timeSeries = timeSeries;
 	}
-	
-	@Override
-	public double[] getRandomNumberSeries() {
-		MersenneTwister generator = new MersenneTwister(seed);
-		double[] randomNumberSeries = new double[timeSeries.length];
-		for(int i = 0; i < timeSeries.length; i++) {
-			randomNumberSeries[i] = generator.nextDouble();
+
+
+
+	public double[][] getRandomNumberRealizations() {
+		
+		double[][] randomNumberMatrix = new double[timeSeries.length][numberOfSimulations];
+		for(int j = 0; j < numberOfSimulations; j++) {
+			MersenneTwister generator = new MersenneTwister(j);
+			for(int i = 0; i < timeSeries.length; i++) {
+				randomNumberMatrix[i][j] = generator.nextDouble();
+			}
 		}
-		return randomNumberSeries;
+		return randomNumberMatrix;
 	}
 
 
