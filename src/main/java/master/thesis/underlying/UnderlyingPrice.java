@@ -29,7 +29,19 @@ public class UnderlyingPrice {
 		this.randomNumberMatrix = randomNumberMatrix;
 	}
 
-
+	public double[][] getNormalDistributedRandomNumberMatrixUnderTargetDistribution() {
+		double[][] underlyingPriceMatrix = new double[timeSeries.length][numberOfSimulations];
+		for(int i = 0; i < numberOfSimulations; i++) {
+			underlyingPriceMatrix[0][i] = initialPrice;
+		}
+		for(int j = 0; j < numberOfSimulations; j++) {
+			for(int i = 1; i < timeSeries.length; i++) {
+				underlyingPriceMatrix[i][j] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i-1][j]);
+			}
+		}
+		return underlyingPriceMatrix;
+	}
+	
 	public double[][] getUnderlyingPriceMatrix() {
 		double[][] underlyingPriceMatrix = new double[timeSeries.length][numberOfSimulations];
 		for(int i = 0; i < numberOfSimulations; i++) {
