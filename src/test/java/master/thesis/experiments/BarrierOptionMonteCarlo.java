@@ -23,7 +23,7 @@ import master.thesis.randomnumber.MersenneTwisterSequence;
 import master.thesis.timediscretization.TimeDiscretizationWithEqualTimeStepSize;
 import master.thesis.underlying.UnderlyingPrice;
 
-public class BarrierOption extends JFrame {
+public class BarrierOptionMonteCarlo extends JFrame {
 
 	static int numberOfSimulations = 25;
 	static double stratTime = 0.0;
@@ -47,12 +47,12 @@ public class BarrierOption extends JFrame {
     	
     	
         SwingUtilities.invokeLater(() -> {
-            BarrierOption ex = new BarrierOption();
+            BarrierOptionMonteCarlo ex = new BarrierOptionMonteCarlo();
             ex.setVisible(true);
         });
     }
     
-    public BarrierOption() {
+    public BarrierOptionMonteCarlo() {
 
         initUI();
     }

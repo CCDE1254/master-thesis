@@ -3,71 +3,91 @@
  */
 package master.thesis.adaptive.importance.sampling;
 
-import master.thesis.underlying.UnderlyingPriceUnderProposalDistribution;
-import master.thesis.underlying.UnderlyingPriceUnderProposalDistributions;
+import master.thesis.neural.network.NeuralNetworkAISCall;
+import master.thesis.neural.network.NeuralNetworkISCall;
+import master.thesis.underlying.UnderlyingPriceUnderAISCall;
+import net.finmath.functions.NormalDistribution;
 
 /**
  * @author QuanLiu
  *
  */
 public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
+	int numberOfSimulations;
+	int numberOfTimeSteps;
+	int numberOfFirstHiddenLayerNeurons;
+	int numberOfSecondHiddenLayerNeurons;
+	double[][] randomNumberMatrix;
 	double initialStockPrice;
 	double riskFreeRate;
 	double volatilityTerm;
 	
-	double maturity;//set evaluation time to be 0
+	double[] timeSeries;
 	double strike;
+	double maturity;
 	
 	double upperBoundFactorB;
 	double upperBoundExponentialDelta1;
 	double lowerBoundFactorA;
 	double lowerBoundExponentialDelta2;
 	
-	int numberOfSimulations;
-	double[] timeSeries;
-	double[][] randomNumberMatrix;
-	double[][] naturalParametersOfProposalDistributions;
+	double[][][] weightMatrix1;
+	double[][][] weightMatrix2;
+	double[][][] weightMatrix3;
 	
-		
-	
-	
-	public DoubleBarrierKnockOutCallAdaptiveImportanceSampling(double initialStockPrice, double riskFreeRate,
-			double volatilityTerm, double maturity, double strike, double upperBoundFactorB,
-			double upperBoundExponentialDelta1, double lowerBoundFactorA, double lowerBoundExponentialDelta2,
-			int numberOfSimulations, double[] timeSeries, double[][] randomNumberMatrix,
-			double[][] naturalParametersOfProposalDistributions) {
+
+
+	public DoubleBarrierKnockOutCallAdaptiveImportanceSampling(int numberOfSimulations, int numberOfTimeSteps,
+			int numberOfFirstHiddenLayerNeurons, int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix,
+			double initialStockPrice, double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike,
+			double maturity, double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
+			double lowerBoundExponentialDelta2, double[][][] weightMatrix1, double[][][] weightMatrix2,
+			double[][][] weightMatrix3) {
 		super();
+		this.numberOfSimulations = numberOfSimulations;
+		this.numberOfTimeSteps = numberOfTimeSteps;
+		this.numberOfFirstHiddenLayerNeurons = numberOfFirstHiddenLayerNeurons;
+		this.numberOfSecondHiddenLayerNeurons = numberOfSecondHiddenLayerNeurons;
+		this.randomNumberMatrix = randomNumberMatrix;
 		this.initialStockPrice = initialStockPrice;
 		this.riskFreeRate = riskFreeRate;
 		this.volatilityTerm = volatilityTerm;
-		this.maturity = maturity;
+		this.timeSeries = timeSeries;
 		this.strike = strike;
+		this.maturity = maturity;
 		this.upperBoundFactorB = upperBoundFactorB;
 		this.upperBoundExponentialDelta1 = upperBoundExponentialDelta1;
 		this.lowerBoundFactorA = lowerBoundFactorA;
 		this.lowerBoundExponentialDelta2 = lowerBoundExponentialDelta2;
-		this.numberOfSimulations = numberOfSimulations;
-		this.timeSeries = timeSeries;
-		this.randomNumberMatrix = randomNumberMatrix;
-		this.naturalParametersOfProposalDistributions = naturalParametersOfProposalDistributions;
+		this.weightMatrix1 = weightMatrix1;
+		this.weightMatrix2 = weightMatrix2;
+		this.weightMatrix3 = weightMatrix3;
 	}
-	
-	
+
 	public double[][] getIncrementsMatrixUnderProposalDistributions() {
-		UnderlyingPriceUnderProposalDistributions underlyingPrice = new UnderlyingPriceUnderProposalDistributions(numberOfSimulations, initialStockPrice, riskFreeRate, volatilityTerm,
-				timeSeries, randomNumberMatrix,naturalParametersOfProposalDistributions);
-		double[][] incrementsMatrixUnderProposalDistribution = underlyingPrice.getIncrementsMatrixUnderProposalDistributions();
+		UnderlyingPriceUnderAISCall underlyingPrice = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
+				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
+				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				lowerBoundExponentialDelta2, weightMatrix1, weightMatrix2,
+				weightMatrix3);
+		double[][] incrementsMatrixUnderProposalDistribution = underlyingPrice.getIncrementsMatrixUnderAIS();
 		return incrementsMatrixUnderProposalDistribution;
 	}
 	
 	public double[][] getUnderlyingPriceMatrixUnderProposalDistributions() {
-		UnderlyingPriceUnderProposalDistributions underlyingPrice = new UnderlyingPriceUnderProposalDistributions(numberOfSimulations, initialStockPrice, riskFreeRate, volatilityTerm,
-				timeSeries, randomNumberMatrix,naturalParametersOfProposalDistributions);
+		UnderlyingPriceUnderAISCall underlyingPrice = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
+				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
+				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				lowerBoundExponentialDelta2, weightMatrix1, weightMatrix2,
+				weightMatrix3);
 		double[][] underlyingPriceMatrix = underlyingPrice.getUnderlyingPriceMatrix();
 		return underlyingPriceMatrix;
 	}
 	
-	public double[] getDiscountedPayoffsUnderProposalDistribution() {
+	public double[] getDiscountedPayoffsUnderProposalDistributions() {
+		double[][] incrementsMatrixUnderProposalDistribution = getIncrementsMatrixUnderProposalDistributions();
 		double[][] underlyingPriceMatrix = getUnderlyingPriceMatrixUnderProposalDistributions();
 		double[] discountedPayoffs = new double[numberOfSimulations];
 		for(int j = 0; j < numberOfSimulations; j++) {
@@ -79,31 +99,34 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 					payoffValid = 0.0;
 				}
 			}
-			discountedPayoffs[j] = Math.max((underlyingPriceMatrix[timeSeries.length-1][j] - strike),0.0)*Math.exp(-riskFreeRate*maturity)*payoffValid;
+			NeuralNetworkAISCall neural = new NeuralNetworkAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
+					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
+					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
+					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
+			double[][] inputVector = new double[numberOfTimeSteps - 1][timeSeries.length];
+			for(int k = 1; k < numberOfTimeSteps - 1; k++) {
+				inputVector[k][0] = 1.0;
+				for(int i = 1; i < timeSeries.length; i++) {
+					inputVector[k][i] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i-1][j]);
+				}
+			}
+			double[][] eta = neural.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3);
+			double productOfDensity = 1.0;
+			for(int i = 0; i < numberOfTimeSteps-1; i++) {
+				productOfDensity *= Math.pow(-2.0*eta[i][1], 1.0/2.0)*Math.exp(eta[i][0]*eta[i][1]/4.0/eta[i][1])*Math.exp(-eta[i][0]*incrementsMatrixUnderProposalDistribution[i][j])
+						*Math.exp(-(1.0/2.0+eta[i][1])*incrementsMatrixUnderProposalDistribution[i][j]*incrementsMatrixUnderProposalDistribution[i][j]);
+			}
+			discountedPayoffs[j] = Math.max((underlyingPriceMatrix[timeSeries.length-1][j] - strike),0.0)*Math.exp(-riskFreeRate*maturity)*payoffValid
+					*productOfDensity;
 			
 		}
 		return discountedPayoffs;
 	}
 	
 
-	public double[] getAdjustedDiscountedPayoffs() {
-		double[][] incrementsMatrixUnderProposalDistribution = getIncrementsMatrixUnderProposalDistributions();
-		double[] discountedPayoffs = getDiscountedPayoffsUnderProposalDistribution();
-		double[] adjustedDiscountedPayoffs = new double[numberOfSimulations];
-		for(int j = 0; j < numberOfSimulations; j++) {
-			double adjustFactor = 1.0;
-			for(int i = 0; i < timeSeries.length-1; i++) {
-				double aeta = (1.0/Math.sqrt(-2.0*naturalParametersOfProposalDistributions[i][1]))*Math.exp(-naturalParametersOfProposalDistributions[i][0]*naturalParametersOfProposalDistributions[i][0]/4.0/naturalParametersOfProposalDistributions[i][1]);
-				double likelihoodRatio = (1.0/aeta) * Math.exp(-naturalParametersOfProposalDistributions[i][0]*incrementsMatrixUnderProposalDistribution[i][j] - (1.0/2 + naturalParametersOfProposalDistributions[i][1])*Math.pow(incrementsMatrixUnderProposalDistribution[i][j], 2) );
-			    adjustFactor *= likelihoodRatio;
-			}
-			adjustedDiscountedPayoffs[j] = discountedPayoffs[j] * adjustFactor;
-		}
-		return adjustedDiscountedPayoffs;
-	}
 	
-	public double getImportanceSamplingValue() {
-		double[] adjustedDiscountedPayoffs = getAdjustedDiscountedPayoffs();
+	public double getAdaptiveImportanceSamplingValue() {
+		double[] adjustedDiscountedPayoffs = getDiscountedPayoffsUnderProposalDistributions();
 		double sumOfPayoffs = 0.0;
 		for(int j = 0; j < numberOfSimulations; j++) {
 			sumOfPayoffs += adjustedDiscountedPayoffs[j];
@@ -113,8 +136,8 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	
 
 	public double getStandardError() {
-		double[] adjustedDiscountedPayoffs = getAdjustedDiscountedPayoffs();
-		double meanValue = getImportanceSamplingValue();
+		double[] adjustedDiscountedPayoffs = getDiscountedPayoffsUnderProposalDistributions();
+		double meanValue = getAdaptiveImportanceSamplingValue();
 		double sumOfVariance = 0.0;
 		for(int j = 0; j < numberOfSimulations; j++) {
 			sumOfVariance += Math.pow(adjustedDiscountedPayoffs[j] - meanValue, 2.0);
@@ -123,8 +146,8 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	}
 	
 	public double getSampleVariance() {
-		double[] adjustedDiscountedPayoffs = getAdjustedDiscountedPayoffs();
-		double meanValue = getImportanceSamplingValue();
+		double[] adjustedDiscountedPayoffs = getDiscountedPayoffsUnderProposalDistributions();
+		double meanValue = getAdaptiveImportanceSamplingValue();
 		double sumOfVariance = 0.0;
 		for(int j = 0; j < numberOfSimulations; j++) {
 			sumOfVariance += Math.pow(adjustedDiscountedPayoffs[j] - meanValue, 2.0);

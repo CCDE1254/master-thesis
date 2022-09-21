@@ -27,5 +27,14 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/QuanLiu/.m2/repository/net/finmath/finmath-lib-plot-extensions/0.4.2/finmath-lib-plot-extensions-0.4.2.jar" sourcepath="C:/Users/QuanLiu/.m2/repository/net/finmath/finmath-lib-plot-extensions/0.4.2/finmath-lib-plot-extensions-0.4.2-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="net.finmath"/>
+			<attribute name="maven.artifactId" value="finmath-lib-plot-extensions"/>
+			<attribute name="maven.version" value="0.4.2"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
