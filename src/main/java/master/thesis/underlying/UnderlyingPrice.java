@@ -30,22 +30,19 @@ public class UnderlyingPrice {
 	}
 
 	public double[][] getNormalDistributedRandomNumberMatrixUnderTargetDistribution() {
-		double[][] underlyingPriceMatrix = new double[timeSeries.length][numberOfSimulations];
-		for(int i = 0; i < numberOfSimulations; i++) {
-			underlyingPriceMatrix[0][i] = initialPrice;
-		}
+		double[][] normalDistributedRandomNumberMatrix = new double[timeSeries.length-1][numberOfSimulations];
 		for(int j = 0; j < numberOfSimulations; j++) {
-			for(int i = 1; i < timeSeries.length; i++) {
-				underlyingPriceMatrix[i][j] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i-1][j]);
+			for(int i = 0; i < timeSeries.length-1; i++) {
+				normalDistributedRandomNumberMatrix[i][j] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i][j]);
 			}
 		}
-		return underlyingPriceMatrix;
+		return normalDistributedRandomNumberMatrix;
 	}
 	
 	public double[][] getUnderlyingPriceMatrix() {
 		double[][] underlyingPriceMatrix = new double[timeSeries.length][numberOfSimulations];
-		for(int i = 0; i < numberOfSimulations; i++) {
-			underlyingPriceMatrix[0][i] = initialPrice;
+		for(int j = 0; j < numberOfSimulations; j++) {
+			underlyingPriceMatrix[0][j] = initialPrice;
 		}
 		for(int j = 0; j < numberOfSimulations; j++) {
 			for(int i = 1; i < timeSeries.length; i++) {

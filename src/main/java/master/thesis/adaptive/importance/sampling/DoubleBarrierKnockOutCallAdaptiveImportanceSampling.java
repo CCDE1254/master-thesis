@@ -4,7 +4,6 @@
 package master.thesis.adaptive.importance.sampling;
 
 import master.thesis.neural.network.NeuralNetworkAISCall;
-import master.thesis.neural.network.NeuralNetworkISCall;
 import master.thesis.underlying.UnderlyingPriceUnderAISCall;
 import net.finmath.functions.NormalDistribution;
 
@@ -30,19 +29,18 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	double upperBoundExponentialDelta1;
 	double lowerBoundFactorA;
 	double lowerBoundExponentialDelta2;
-	
+	double[] etaUnderIS;
 	double[][][] weightMatrix1;
 	double[][][] weightMatrix2;
 	double[][][] weightMatrix3;
 	
 
-
 	public DoubleBarrierKnockOutCallAdaptiveImportanceSampling(int numberOfSimulations, int numberOfTimeSteps,
 			int numberOfFirstHiddenLayerNeurons, int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix,
 			double initialStockPrice, double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike,
 			double maturity, double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
-			double lowerBoundExponentialDelta2, double[][][] weightMatrix1, double[][][] weightMatrix2,
-			double[][][] weightMatrix3) {
+			double lowerBoundExponentialDelta2, double[] etaUnderIS, double[][][] weightMatrix1,
+			double[][][] weightMatrix2, double[][][] weightMatrix3) {
 		super();
 		this.numberOfSimulations = numberOfSimulations;
 		this.numberOfTimeSteps = numberOfTimeSteps;
@@ -59,6 +57,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 		this.upperBoundExponentialDelta1 = upperBoundExponentialDelta1;
 		this.lowerBoundFactorA = lowerBoundFactorA;
 		this.lowerBoundExponentialDelta2 = lowerBoundExponentialDelta2;
+		this.etaUnderIS = etaUnderIS;
 		this.weightMatrix1 = weightMatrix1;
 		this.weightMatrix2 = weightMatrix2;
 		this.weightMatrix3 = weightMatrix3;
@@ -103,18 +102,20 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
-			double[][] inputVector = new double[numberOfTimeSteps - 1][timeSeries.length];
+			double[][] inputVector = new double[numberOfTimeSteps - 1][timeSeries.length-1];
 			for(int k = 1; k < numberOfTimeSteps - 1; k++) {
 				inputVector[k][0] = 1.0;
-				for(int i = 1; i < timeSeries.length; i++) {
+				for(int i = 1; i < timeSeries.length-1; i++) {
 					inputVector[k][i] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i-1][j]);
 				}
 			}
 			double[][] eta = neural.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3);
 			double productOfDensity = 1.0;
+			productOfDensity *= Math.pow(-2.0*etaUnderIS[1], 1.0/2.0)*Math.exp(etaUnderIS[0]*etaUnderIS[1]/4.0/etaUnderIS[1])*Math.exp(-etaUnderIS[0]*incrementsMatrixUnderProposalDistribution[0][j])
+					*Math.exp(-(1.0/2.0+etaUnderIS[1])*incrementsMatrixUnderProposalDistribution[0][j]*incrementsMatrixUnderProposalDistribution[0][j]);
 			for(int i = 0; i < numberOfTimeSteps-1; i++) {
-				productOfDensity *= Math.pow(-2.0*eta[i][1], 1.0/2.0)*Math.exp(eta[i][0]*eta[i][1]/4.0/eta[i][1])*Math.exp(-eta[i][0]*incrementsMatrixUnderProposalDistribution[i][j])
-						*Math.exp(-(1.0/2.0+eta[i][1])*incrementsMatrixUnderProposalDistribution[i][j]*incrementsMatrixUnderProposalDistribution[i][j]);
+				productOfDensity *= Math.pow(-2.0*eta[i][1], 1.0/2.0)*Math.exp(eta[i][0]*eta[i][1]/4.0/eta[i][1])*Math.exp(-eta[i][0]*incrementsMatrixUnderProposalDistribution[i+1][j])
+						*Math.exp(-(1.0/2.0+eta[i][1])*incrementsMatrixUnderProposalDistribution[i+1][j]*incrementsMatrixUnderProposalDistribution[i+1][j]);
 			}
 			discountedPayoffs[j] = Math.max((underlyingPriceMatrix[timeSeries.length-1][j] - strike),0.0)*Math.exp(-riskFreeRate*maturity)*payoffValid
 					*productOfDensity;

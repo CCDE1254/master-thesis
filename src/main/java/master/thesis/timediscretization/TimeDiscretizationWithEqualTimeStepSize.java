@@ -38,7 +38,7 @@ public class TimeDiscretizationWithEqualTimeStepSize {
 
 	public double[] getTimeSeries() {
 		double[] timeSeries = new double[getNumberOfTimePoints()];
-		for(int i = 0; i < getNumberOfTimePoints(); i++) {
+		for(int i = 0; i < numberOfTimeSteps+1; i++) {
 			timeSeries[i] = startTime + i * getTimeStepSize();
 		}
 		return timeSeries;

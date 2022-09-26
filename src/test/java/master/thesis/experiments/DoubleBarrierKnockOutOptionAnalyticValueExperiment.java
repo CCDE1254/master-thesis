@@ -9,12 +9,10 @@ import java.util.List;
 
 import master.thesis.adaptive.importance.sampling.DoubleBarrierKnockOutCallAdaptiveImportanceSampling;
 import master.thesis.barrieroption.DoubleBarrierKnockOutCall;
-import master.thesis.barrieroption.DoubleBarrierKnockOutPut;
 import master.thesis.importance.sampling.DoubleBarrierKnockOutCallImportanceSampling;
 import master.thesis.montecarlo.DoubleBarrierKnockOutCallMonteCarlo;
-import master.thesis.montecarlo.DoubleBarrierKnockOutPutMonteCarlo;
 import master.thesis.neural.network.GradientDescentAISCall;
-import master.thesis.neural.network.GradientDescentISCall;
+import master.thesis.neural.network.OptimalParameterFinderISCall;
 import master.thesis.randomnumber.MersenneTwisterSequence;
 import master.thesis.timediscretization.TimeDiscretizationWithEqualTimeStepSize;
 import net.finmath.plots.Plot;
@@ -38,17 +36,22 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 	static double lowerBoundExponentialDelta2 = -0.1;
 	
 	static int numberOfSimulations = 2000;
-	static int numberOfTimeSteps = 5;
+	static int numberOfTimeSteps = 50;
 	
 	static int numberOfFirstHiddenLayerNeurons=10;
 	static int numberOfSecondHiddenLayerNeurons=5;
 	
 	static double learningRate = 1.0;
-	static int numberOfIterationTimes = 100;
+	static int numberOfIterationTimes = 2;
+	static int numberOfPossibleValues = 11;
+	static double minEta1 = -0.002;
+	static double maxEta1 = 0.002;
+	static double minEta2 = -0.55;
+	static double maxEta2 = -0.50;
 	
 	public static void main(String[] ards) throws Exception {
-	    //valuationTest();
-	    valuationPlot();
+	    valuationTest();
+//	   valuationPlot();
 	}
 	
 	
@@ -86,35 +89,33 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 		
 		//IS value
 		long timeStart = System.currentTimeMillis();
-		GradientDescentISCall gradientDescentISCall = new GradientDescentISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
-				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
+		OptimalParameterFinderISCall parameterISCall = new OptimalParameterFinderISCall(numberOfSimulations, numberOfTimeSteps, randomNumberMatrix, initialStockPrice,
 				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
-				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes);
-		double[][][] weightMatrixIS = gradientDescentISCall.getOptimalWeightMatrix();
-		double[][] weightMatrix1IS = weightMatrixIS[0];
-		double[][] weightMatrix2IS = weightMatrixIS[1];
-		double[][] weightMatrix3IS = weightMatrixIS[2];
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, numberOfPossibleValues, minEta1, maxEta1,
+				minEta2, maxEta2);
+		double[] eta = parameterISCall.getOptimalEta();
 		long timeEnd = System.currentTimeMillis();
 		double timeSec = (timeEnd-timeStart) / 1000.0;
 		System.out.println("Time to find optimal natural parameters for call under IS...: " + timeSec + " sec.");
 		DoubleBarrierKnockOutCallImportanceSampling callIS = new DoubleBarrierKnockOutCallImportanceSampling(numberOfSimulations, numberOfTimeSteps,
-				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
+				randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
 				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
-				lowerBoundExponentialDelta2, weightMatrix1IS, weightMatrix2IS,
-				weightMatrix3IS);
+				lowerBoundExponentialDelta2, eta);
 		System.out.println("Importance Sampling value of double knock-out call is: " + callIS.getImportanceSamplingValue());
 		System.out.println("Sample variance of double knock-out call under Importance Sampling is: " + callIS.getSampleVariance());
 		System.out.println("Standard error of double knock-out call under Importance Sampling is: " + callIS.getStandardError());
-		System.out.println();
-		
+		System.out.println(eta[0]);
+		System.out.println(eta[1]);
+		eta[0]=0.0;
+		eta[1]=-0.5;
 
 		//AIS value
 		long timeStart1 = System.currentTimeMillis();
 		GradientDescentAISCall gradientDescentAISCall = new GradientDescentAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
-				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes);
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes,eta);
 		double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
 		double[][][] weightMatrix1AIS = weightMatrixAIS[0];
 		double[][][] weightMatrix2AIS = weightMatrixAIS[1];
@@ -126,7 +127,7 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
 				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
-				lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
+				lowerBoundExponentialDelta2, eta,weightMatrix1AIS, weightMatrix2AIS,
 				weightMatrix3AIS);
 		System.out.println("Forward Adaptive Importance Sampling value of double knock-out call is: " + callAIS.getAdaptiveImportanceSamplingValue());
 		System.out.println("Sample variance of double knock-out call under Forward Adaptive Importance Sampling is: " + callAIS.getSampleVariance());
@@ -145,6 +146,38 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 		MersenneTwisterSequence randomnumber = new MersenneTwisterSequence(numberOfSimulations, timeSeries);
 		double[][] randomNumberMatrix = randomnumber.getRandomNumberRealizations();
 		
+		//analytic value
+			DoubleBarrierKnockOutCall call = new DoubleBarrierKnockOutCall(initialStockPrice, riskFreeRate, volatilityTerm,
+					maturity, strike, upperBoundFactorB, upperBoundExponentialDelta1,
+					lowerBoundFactorA, lowerBoundExponentialDelta2);
+		
+		//monte carlo value
+			DoubleBarrierKnockOutCallMonteCarlo callMC = new DoubleBarrierKnockOutCallMonteCarlo(initialStockPrice,riskFreeRate, volatilityTerm,
+				    maturity, strike, upperBoundFactorB, upperBoundExponentialDelta1,
+					lowerBoundFactorA, lowerBoundExponentialDelta2, numberOfSimulations, timeSeries,
+					randomNumberMatrix);
+		
+		//IS value
+			long timeStart = System.currentTimeMillis();
+			OptimalParameterFinderISCall parameterISCall = new OptimalParameterFinderISCall(numberOfSimulations, numberOfTimeSteps, randomNumberMatrix, initialStockPrice,
+					riskFreeRate, volatilityTerm, timeSeries, strike, maturity,
+					upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+					lowerBoundExponentialDelta2, numberOfPossibleValues, minEta1, maxEta1,
+					minEta2, maxEta2);
+			double[] eta = parameterISCall.getOptimalEta();
+			long timeEnd = System.currentTimeMillis();
+			double timeSec = (timeEnd-timeStart) / 1000.0;
+			System.out.println("Time to find optimal natural parameters for call under IS...: " + timeSec + " sec.");
+			DoubleBarrierKnockOutCallImportanceSampling callIS = new DoubleBarrierKnockOutCallImportanceSampling(numberOfSimulations, numberOfTimeSteps,
+					randomNumberMatrix,
+					initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
+					maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+					lowerBoundExponentialDelta2, eta);
+			double ISValue = callIS.getImportanceSamplingValue();
+			double ISSampleVariance = callIS.getSampleVariance();
+			double ISStandardError = callIS.getStandardError();
+			
+		
 		final List<Double> iterationSteps = new ArrayList<Double>();
 		final List<Double> analyticValues = new ArrayList<Double>();
 		final List<Double> monteCarloValues = new ArrayList<Double>();
@@ -158,51 +191,26 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 		final List<Double> adaptiveImportanceSamplingSampleVariances = new ArrayList<Double>();
 		final List<Double> adaptiveImportanceSamplingStandardErrors = new ArrayList<Double>();
 		final List<Double> adaptiveImportanceSamplingErrors = new ArrayList<Double>();
-		for(int i = 0; i < numberOfIterationTimes; i+=numberOfIterationTimes/10) {
+		for(int i = 0; i < numberOfIterationTimes; i+=numberOfIterationTimes/5) {
 			iterationSteps.add((double)i);
-			//analytic value
-			DoubleBarrierKnockOutCall call = new DoubleBarrierKnockOutCall(initialStockPrice, riskFreeRate, volatilityTerm,
-					maturity, strike, upperBoundFactorB, upperBoundExponentialDelta1,
-					lowerBoundFactorA, lowerBoundExponentialDelta2);
+			
 			analyticValues.add(call.getAnalyticValue());	
-			//monte carlo value
-			DoubleBarrierKnockOutCallMonteCarlo callMC = new DoubleBarrierKnockOutCallMonteCarlo(initialStockPrice,riskFreeRate, volatilityTerm,
-				    maturity, strike, upperBoundFactorB, upperBoundExponentialDelta1,
-					lowerBoundFactorA, lowerBoundExponentialDelta2, numberOfSimulations, timeSeries,
-					randomNumberMatrix);
+			
 			monteCarloValues.add(callMC.getMonteCarloValue());	
 			monteCarloSampleVariances.add(callMC.getSampleVariance());
 			monteCarloStandardErrors.add(callMC.getStandardError());
-			//IS value
-			GradientDescentISCall gradientDescentISCall = new GradientDescentISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
-					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
-					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
-					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, i);
-			double[][][] weightMatrixIS = gradientDescentISCall.getOptimalWeightMatrix();
-			double[][] weightMatrix1IS = weightMatrixIS[0];
-			double[][] weightMatrix2IS = weightMatrixIS[1];
-			double[][] weightMatrix3IS = weightMatrixIS[2];
-			DoubleBarrierKnockOutCallImportanceSampling callIS = new DoubleBarrierKnockOutCallImportanceSampling(numberOfSimulations, numberOfTimeSteps,
-					0, 0, randomNumberMatrix,
-					initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
-					maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
-					lowerBoundExponentialDelta2, weightMatrix1IS, weightMatrix2IS,
-					weightMatrix3IS);
-			double ISValue = callIS.getImportanceSamplingValue();
-			double ISSampleVariance = callIS.getSampleVariance();
-			double ISStandardError = callIS.getStandardError();
+			
+			
 			importanceSamplingValues.add(ISValue);	
 			importanceSamplingSampleVariances.add(ISSampleVariance);
 			importanceSamplingStandardErrors.add(ISStandardError);
 			importanceSamplingErrors.add(ISValue - call.getAnalyticValue());
 			
-			
-			
 			//AIS value
 			GradientDescentAISCall gradientDescentAISCall = new GradientDescentAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
-					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, i);
+					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, i, eta);
 			double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
 			double[][][] weightMatrix1AIS = weightMatrixAIS[0];
 			double[][][] weightMatrix2AIS = weightMatrixAIS[1];
@@ -211,7 +219,7 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 					numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 					initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
 					maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
-					lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
+					lowerBoundExponentialDelta2, eta, weightMatrix1AIS, weightMatrix2AIS,
 					weightMatrix3AIS);
 			double AISValue = callAIS.getAdaptiveImportanceSamplingValue();
 			double AISSampleVariance = callAIS.getSampleVariance();
@@ -219,23 +227,15 @@ public class DoubleBarrierKnockOutOptionAnalyticValueExperiment {
 			adaptiveImportanceSamplingValues.add(AISValue);	
 			adaptiveImportanceSamplingSampleVariances.add(AISSampleVariance);
 			adaptiveImportanceSamplingStandardErrors.add(AISStandardError);
-			adaptiveImportanceSamplingErrors.add(AISValue - call.getAnalyticValue());
+			adaptiveImportanceSamplingErrors.add(Math.abs(AISValue - call.getAnalyticValue())/call.getAnalyticValue());
+			System.out.println(weightMatrix1AIS[0][0][0]);
 		}
-		
-		final Plot plot = Plots.createScatter(iterationSteps, importanceSamplingErrors, 0.0, 0.1, 5)
-				.setTitle("Estimation error under IS method for double knock-out call")
-				.setXAxisLabel("iteration (training) times")
-				.setYAxisLabel("estimation error")
-				.setYRange(0.0, 0.5)
-				.setYAxisNumberFormat(new DecimalFormat("0.0%"));
-
-		plot.show();
 		
 		final Plot plot1 = Plots.createScatter(iterationSteps, adaptiveImportanceSamplingErrors, 0.0, 0.1, 5)
 				.setTitle("Estimation error under AIS method for double knock-out call")
 				.setXAxisLabel("iteration (training) times")
 				.setYAxisLabel("estimation error")
-				.setYRange(0.0, 0.1)
+				.setYRange(0.0, 1)
 				.setYAxisNumberFormat(new DecimalFormat("0.0%"));
 
 		plot1.show();

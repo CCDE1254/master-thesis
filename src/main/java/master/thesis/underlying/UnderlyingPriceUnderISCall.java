@@ -3,7 +3,6 @@
  */
 package master.thesis.underlying;
 
-import master.thesis.neural.network.NeuralNetworkISCall;
 import net.finmath.functions.NormalDistribution;
 
 /**
@@ -13,8 +12,6 @@ import net.finmath.functions.NormalDistribution;
 public class UnderlyingPriceUnderISCall {
 	int numberOfSimulations;
 	int numberOfTimeSteps;
-	int numberOfFirstHiddenLayerNeurons;
-	int numberOfSecondHiddenLayerNeurons;
 	double[][] randomNumberMatrix;
 	double initialStockPrice;
 	double riskFreeRate;
@@ -29,22 +26,16 @@ public class UnderlyingPriceUnderISCall {
 	double lowerBoundFactorA;
 	double lowerBoundExponentialDelta2;
 	
-	double[][] weightMatrix1;
-	double[][] weightMatrix2;
-	double[][] weightMatrix3;
-	
+	double[] eta;
 
 	public UnderlyingPriceUnderISCall(int numberOfSimulations, int numberOfTimeSteps,
-			int numberOfFirstHiddenLayerNeurons, int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix,
+			double[][] randomNumberMatrix,
 			double initialStockPrice, double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike,
 			double maturity, double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
-			double lowerBoundExponentialDelta2, double[][] weightMatrix1, double[][] weightMatrix2,
-			double[][] weightMatrix3) {
+			double lowerBoundExponentialDelta2, double[] eta) {
 		super();
 		this.numberOfSimulations = numberOfSimulations;
 		this.numberOfTimeSteps = numberOfTimeSteps;
-		this.numberOfFirstHiddenLayerNeurons = numberOfFirstHiddenLayerNeurons;
-		this.numberOfSecondHiddenLayerNeurons = numberOfSecondHiddenLayerNeurons;
 		this.randomNumberMatrix = randomNumberMatrix;
 		this.initialStockPrice = initialStockPrice;
 		this.riskFreeRate = riskFreeRate;
@@ -56,32 +47,32 @@ public class UnderlyingPriceUnderISCall {
 		this.upperBoundExponentialDelta1 = upperBoundExponentialDelta1;
 		this.lowerBoundFactorA = lowerBoundFactorA;
 		this.lowerBoundExponentialDelta2 = lowerBoundExponentialDelta2;
-		this.weightMatrix1 = weightMatrix1;
-		this.weightMatrix2 = weightMatrix2;
-		this.weightMatrix3 = weightMatrix3;
+		this.eta = eta;
 	}
 
 	public double[][] getIncrementsMatrixUnderIS(){
 		double[][] incrementsMatrixUnderIS = new double[timeSeries.length-1][numberOfSimulations];
-		for(int i = 0; i < numberOfSimulations; i++) {
-			NeuralNetworkISCall neuralNetwork = new NeuralNetworkISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
-					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
-					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
-					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
-			double[] inputVector = new double[numberOfTimeSteps +1];
-			inputVector[0] = 1.0;
-			for(int j = 1; j < numberOfTimeSteps +1; j++) {
-				inputVector[j] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[j-1][i]);
-			}
-			double eta1 = neuralNetwork.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3)[0];
-			double eta2 = neuralNetwork.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3)[1];
-			double mean = -2.0*eta1*eta2; //mean
-			double variance = -2.0*eta2; //variance
-			for(int j = 0; j < timeSeries.length - 1 ; j++) {
-				incrementsMatrixUnderIS[j][i] = (NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[j][i])*Math.sqrt(variance) + mean );
+		double eta1 = eta[0];
+		double eta2 = eta[1];
+		double mean = -eta1/(2.0*eta2); //mean
+		double variance = -1.0/(2.0*eta2); //variance
+		for(int j = 0; j < numberOfSimulations; j++) {
+			for(int i = 0; i < timeSeries.length - 1 ; i++) {
+				incrementsMatrixUnderIS[i][j] = (NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[i][j])*Math.sqrt(variance) + mean );
 			}
 		}
 		return incrementsMatrixUnderIS;
+	}
+	
+	public double[] getNormalParameters(double eta[]){
+		double[] normalParameters = new double[2];
+			double eta1 = eta[0];
+			double eta2 = eta[1];
+			double mean = -eta1/(2.0*eta2); //mean
+			double variance = -1.0/(2.0*eta2); //variance
+			normalParameters[0] = mean;
+			normalParameters[1] = variance;
+		return normalParameters;
 	}
 
 	public double[][] getUnderlyingPriceMatrix() {

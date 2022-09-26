@@ -48,25 +48,6 @@ public class DoubleBarrierKnockOutCallMonteCarlo {
 		this.randomNumberMatrix = randomNumberMatrix;
 	}
 	
-	public double[] getPayoffs() {
-		UnderlyingPrice underlyingPrice = new UnderlyingPrice(numberOfSimulations, initialStockPrice, riskFreeRate, volatilityTerm,
-				timeSeries, randomNumberMatrix);
-		double[][] underlyingPriceMatrix = underlyingPrice.getUnderlyingPriceMatrix();
-		double[] discountedPayoffs = new double[numberOfSimulations];
-		for(int j = 0; j < numberOfSimulations; j++) {
-			double payoffValid = 1.0;
-			for(int i = 0; i < timeSeries.length; i++) {
-				double upperBound = upperBoundFactorB*Math.exp(upperBoundExponentialDelta1*timeSeries[i]);
-				double lowerBound = lowerBoundFactorA*Math.exp(lowerBoundExponentialDelta2*timeSeries[i]);
-				if((underlyingPriceMatrix[i][j]>=upperBound) || (underlyingPriceMatrix[i][j]<=lowerBound)) {
-					payoffValid = 0.0;
-				}
-			}
-			discountedPayoffs[j] = Math.max((underlyingPriceMatrix[timeSeries.length-1][j] - strike),0.0)*payoffValid;
-		}
-		return discountedPayoffs;
-	}
-	
 	
 	public double[] getDiscountedPayoffs() {
 		UnderlyingPrice underlyingPrice = new UnderlyingPrice(numberOfSimulations, initialStockPrice, riskFreeRate, volatilityTerm,

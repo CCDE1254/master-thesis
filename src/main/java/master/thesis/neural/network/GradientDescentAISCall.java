@@ -27,15 +27,17 @@ public class GradientDescentAISCall {
 	double upperBoundExponentialDelta1;
 	double lowerBoundFactorA;
 	double lowerBoundExponentialDelta2;
-	
+	double[] etaUnderIS;
 	double learningRate;
 	int numberOfIterationTimes;
+	double[] optimalEtaUnderIS;
 	
 	public GradientDescentAISCall(int numberOfSimulations, int numberOfTimeSteps, int numberOfFirstHiddenLayerNeurons,
 			int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix, double initialStockPrice,
 			double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike, double maturity,
 			double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
-			double lowerBoundExponentialDelta2, double learningRate, int numberOfIterationTimes) {
+			double lowerBoundExponentialDelta2, double learningRate, int numberOfIterationTimes,
+			double[] optimalEtaUnderIS) {
 		super();
 		this.numberOfSimulations = numberOfSimulations;
 		this.numberOfTimeSteps = numberOfTimeSteps;
@@ -54,8 +56,9 @@ public class GradientDescentAISCall {
 		this.lowerBoundExponentialDelta2 = lowerBoundExponentialDelta2;
 		this.learningRate = learningRate;
 		this.numberOfIterationTimes = numberOfIterationTimes;
+		this.optimalEtaUnderIS = optimalEtaUnderIS;
 	}
-	
+
 	public double[][][][] getOptimalWeightMatrix() {
 		NeuralNetworkAISCall neural = new NeuralNetworkAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
@@ -66,7 +69,7 @@ public class GradientDescentAISCall {
 		double[][] normalDistributedRandomNumberMatrix = normalDistributedRandomNumber.getNormalDistributedRandomNumberMatrixUnderTargetDistribution();
 		double[][][] weightMatrix1 = neural.initializeWeightMatrix1();
 		double[][][] weightMatrix2 = neural.initializeWeightMatrix2();
-		double[][][] weightMatrix3 = neural.initializeWeightMatrix3();
+		double[][][] weightMatrix3 = neural.initializeWeightMatrix3(optimalEtaUnderIS);
 		for(int i = 0; i < numberOfIterationTimes; i++) {
 			double[][] inputVector = new double[numberOfTimeSteps - 1][timeSeries.length];
 			for(int k = 1; k < numberOfTimeSteps - 1; k++) {
@@ -79,9 +82,9 @@ public class GradientDescentAISCall {
 			double[][] output1 = neural.getHiddenLayer1Output(inputVector, weightMatrix1);
 			double[][] output2 = neural.getHiddenLayer2Output(inputVector, weightMatrix1, weightMatrix2);
 			double[][] output3 = neural.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3);
-			double[][][] derivative3 = neural.getDerivativeOfWeightMatrix3(i,weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
-			double[][][] derivative2 = neural.getDerivativeOfWeightMatrix2(i,weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
-			double[][][] derivative1 = neural.getDerivativeOfWeightMatrix1(i, inputVector, weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
+			double[][][] derivative3 = neural.getDerivativeOfWeightMatrix3(optimalEtaUnderIS,i,weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
+			double[][][] derivative2 = neural.getDerivativeOfWeightMatrix2(optimalEtaUnderIS,i,weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
+			double[][][] derivative1 = neural.getDerivativeOfWeightMatrix1(optimalEtaUnderIS,i, inputVector, weightMatrix1, weightMatrix2, weightMatrix3, output1, output2, output3);
 			for(int j = 0; j < weightMatrix3.length; j++) {
 				for(int k = 0; k < weightMatrix3[0].length; k++) {
 					for(int l = 0; l < weightMatrix3[0][0].length; l++) {

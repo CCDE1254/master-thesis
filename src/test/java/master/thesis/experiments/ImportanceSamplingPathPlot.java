@@ -1,5 +1,7 @@
+/**
+ * 
+ */
 package master.thesis.experiments;
-
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -19,27 +21,35 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import master.thesis.importance.sampling.DoubleBarrierKnockOutCallImportanceSampling;
+import master.thesis.neural.network.OptimalParameterFinderISCall;
 import master.thesis.randomnumber.MersenneTwisterSequence;
 import master.thesis.timediscretization.TimeDiscretizationWithEqualTimeStepSize;
 import master.thesis.underlying.UnderlyingPrice;
+import master.thesis.underlying.UnderlyingPriceUnderISCall;
 
-public class BarrierOptionMonteCarlo extends JFrame {
+public class ImportanceSamplingPathPlot extends JFrame {
 
-	static int numberOfSimulations = 25;
+	static int numberOfSimulations = 50;
 	static double stratTime = 0.0;
 	static double endTime = 10.0;
 	static int numberOfTimeSteps = 1000;
-	static double initialPrice = 100;
+	static double initialStockPrice = 100;
+	static double strike = 150;
 	static double riskFreeRate = 0.02;
-	static double volatility = 0.15;
+	static double volatilityTerm = 0.15;
 	
 	double upperBoundFactorB = 150;
 	double upperBoundExponentialDelta1 = 0.06;
-//	double upperBoundExponentialDelta1 = 0.0;
+//	double upperBoundExponentialDelta1 = 0.06;
 	double lowerBoundFactorA = 50;
 	double lowerBoundExponentialDelta2 = 0.06;
 //	double lowerBoundExponentialDelta2 = -0.06;
-	int numberOfPath = 200;
+    int numberOfPossibleValues = 11;
+    double minEta1 = -0.02;
+	double maxEta1 = 0.02;
+	double minEta2 = -0.55;
+	double maxEta2 = -0.499;
 	
 	
     public static void main(String[] args) {
@@ -47,12 +57,12 @@ public class BarrierOptionMonteCarlo extends JFrame {
     	
     	
         SwingUtilities.invokeLater(() -> {
-            BarrierOptionMonteCarlo ex = new BarrierOptionMonteCarlo();
+        	ImportanceSamplingPathPlot ex = new ImportanceSamplingPathPlot();
             ex.setVisible(true);
         });
     }
     
-    public BarrierOptionMonteCarlo() {
+    public ImportanceSamplingPathPlot() {
 
         initUI();
     }
@@ -82,11 +92,18 @@ public class BarrierOptionMonteCarlo extends JFrame {
 		MersenneTwisterSequence randomnumber = new MersenneTwisterSequence(numberOfSimulations, timeSeries);
 		double[][] randomNumberMatrix = randomnumber.getRandomNumberRealizations();
 		
-		//generate brownian motion under given time series and random number sequence
-		UnderlyingPrice underlyingPrice = new UnderlyingPrice(numberOfSimulations, initialPrice, riskFreeRate, volatility,
-				timeSeries, randomNumberMatrix);
-		double[][] underlyingPriceMatrix = underlyingPrice.getUnderlyingPriceMatrix();
 
+		OptimalParameterFinderISCall parameterISCall = new OptimalParameterFinderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, numberOfPossibleValues , minEta1, maxEta1,
+				minEta2, maxEta2);
+		double[] eta = parameterISCall.getOptimalEta();
+		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
+		
+		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
+		
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries seriesU = new XYSeries("Upper Bound");
 		for(int i = 0; i < timeSeries.length; i++) {
@@ -124,10 +141,17 @@ public class BarrierOptionMonteCarlo extends JFrame {
 		MersenneTwisterSequence randomnumber = new MersenneTwisterSequence(numberOfSimulations, timeSeries);
 		double[][] randomNumberMatrix = randomnumber.getRandomNumberRealizations();
 		
-		//generate brownian motion under given time series and random number sequence
-		UnderlyingPrice underlyingPrice = new UnderlyingPrice(numberOfSimulations, initialPrice, riskFreeRate, volatility,
-				timeSeries, randomNumberMatrix);
-		double[][] underlyingPriceMatrix = underlyingPrice.getUnderlyingPriceMatrix();
+
+		OptimalParameterFinderISCall parameterISCall = new OptimalParameterFinderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, numberOfPossibleValues , minEta1, maxEta1,
+				minEta2, maxEta2);
+		double[] eta = parameterISCall.getOptimalEta();
+		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
+		
+		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
     	
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Double Knock-Out Option", 
@@ -159,6 +183,9 @@ public class BarrierOptionMonteCarlo extends JFrame {
         
         for(int j = 0; j < numberOfSimulations; j++) {
         	renderer.setSeriesPaint(j+2, Color.GREEN);
+        	if(underlyingPriceMatrix[timeSeries.length-1][j]<strike) {
+        		renderer.setSeriesPaint(j+2, Color.BLUE);
+        	}
         	for(int i = 0; i < timeSeries.length; i++) {
     			if((underlyingPriceMatrix[i][j]>=upperBound[i]) || (underlyingPriceMatrix[i][j]<=lowerBound[i])) {
     				renderer.setSeriesPaint(j+2, Color.RED);
@@ -176,12 +203,16 @@ public class BarrierOptionMonteCarlo extends JFrame {
 
         chart.getLegend().setFrame(BlockBorder.NONE);
 
-        chart.setTitle(new TextTitle("Double Knock-Out Option Example of Increasing Upper Bound and Lower Bound",
+        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Decreasing Lower Bound Under Importance Sampling",
                         new Font("Serif", Font.BOLD, 24)
                 )
         );
-
-//        chart.setTitle(new TextTitle("Double Knock-Out Option Example of Flat Upper Bound and Decreasing Lower Bound",
+        
+        System.out.println(eta[0]);
+        System.out.println(eta[1]);
+        System.out.println(callIS.getNormalParameters(eta)[0]);
+        System.out.println(callIS.getNormalParameters(eta)[1]);
+//        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Decreasing Lower Bound Under Importance Sampling",
 //                new Font("Serif", Font.BOLD, 24)
 //        )
 //        );

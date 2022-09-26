@@ -4,7 +4,6 @@
 package master.thesis.underlying;
 
 import master.thesis.neural.network.NeuralNetworkAISCall;
-import master.thesis.neural.network.NeuralNetworkISCall;
 import net.finmath.functions.NormalDistribution;
 
 /**
@@ -69,20 +68,20 @@ public class UnderlyingPriceUnderAISCall {
 					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
-			double[][] inputVector = new double[numberOfTimeSteps - 1][timeSeries.length];
-			for(int k = 1; k < numberOfTimeSteps - 1; k++) {
+			double[][] inputVector = new double[numberOfTimeSteps-1][numberOfTimeSteps];//first dimension is number of groups of weight and bias terms should be optimaized theta1, ..., thetaN-1. second dimension 1, x0,...,xN-2
+			for(int k = 1; k < numberOfTimeSteps-1; k++) {
 				inputVector[k][0] = 1.0;
-				for(int j = 1; j < timeSeries.length; j++) {
+				for(int j = 1; j < numberOfTimeSteps; j++) {
 					inputVector[k][j] = NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[j-1][i]);
 				}
 			}
 			
-			double[][] eta = neuralNetwork.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3);
+			double[][] eta = neuralNetwork.getOutput(inputVector, weightMatrix1, weightMatrix2, weightMatrix3);//first dimension 1, 2, ..., N-1
 			for(int j = 0; j < numberOfTimeSteps-1 ; j++) {
 				double eta1 = eta[j][0];
 				double eta2 = eta[j][1];
-				double mean = -2.0*eta1*eta2; //mean
-				double variance = -2.0*eta2; //variance
+				double mean = -eta1/(2.0*eta2); //mean
+				double variance = -1.0/(2.0*eta2); //variance
 				incrementsMatrixUnderAIS[j][i] = (NormalDistribution.inverseCumulativeDistribution(randomNumberMatrix[j][i])*Math.sqrt(variance) + mean );
 			}
 		}
