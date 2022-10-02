@@ -1,2 +1,2 @@
 # master-thesis
-This java project is for numerical experiment for my mater thesis.
+This java project is for numerical experiment in my mater thesis.
