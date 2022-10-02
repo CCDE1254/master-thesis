@@ -25,21 +25,21 @@ import master.thesis.underlying.UnderlyingPrice;
 
 public class MonteCarloPathPlot extends JFrame {
 
-	static int numberOfSimulations = 50;
+	static int numberOfSimulations = 1000;
 	static double stratTime = 0.0;
 	static double endTime = 10.0;
-	static int numberOfTimeSteps = 1000;
+	static int numberOfTimeSteps = 20;
 	static double initialPrice = 100;
 	static double strike = 150;
 	static double riskFreeRate = 0.02;
 	static double volatility = 0.15;
 	
 	double upperBoundFactorB = 150;
-//	double upperBoundExponentialDelta1 = 0.06;
 	double upperBoundExponentialDelta1 = 0.06;
+//	double upperBoundExponentialDelta1 = 0.06;
 	double lowerBoundFactorA = 50;
-//	double lowerBoundExponentialDelta2 = 0.06;
-	double lowerBoundExponentialDelta2 = -0.06;
+	double lowerBoundExponentialDelta2 = 0.06;
+//	double lowerBoundExponentialDelta2 = -0.06;
 
 	
 	
@@ -136,7 +136,7 @@ public class MonteCarloPathPlot extends JFrame {
                 "Price", 
                 dataset, 
                 PlotOrientation.VERTICAL,
-                true, 
+                false, 
                 true, 
                 false
         );
@@ -178,7 +178,7 @@ public class MonteCarloPathPlot extends JFrame {
         plot.setDomainGridlinesVisible(false);
         
 
-        chart.getLegend().setFrame(BlockBorder.NONE);
+//        chart.getLegend().setFrame(BlockBorder.NONE);
 
 //        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound Under Monte Carlo",
 //                        new Font("Serif", Font.BOLD, 24)

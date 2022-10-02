@@ -3,12 +3,13 @@
  */
 package master.thesis.experiments;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -21,14 +22,19 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import master.thesis.adaptive.importance.sampling.DoubleBarrierKnockOutCallAdaptiveImportanceSampling;
+import master.thesis.gradient.descent.AdaGradAISCall;
 import master.thesis.gradient.descent.AdaGradISCall;
-import master.thesis.importance.sampling.DoubleBarrierKnockOutCallImportanceSampling;
 import master.thesis.randomnumber.MersenneTwisterSequence;
 import master.thesis.timediscretization.TimeDiscretizationWithEqualTimeStepSize;
-import master.thesis.underlying.UnderlyingPrice;
+import master.thesis.underlying.UnderlyingPriceUnderAISCall;
 import master.thesis.underlying.UnderlyingPriceUnderISCall;
 
-public class ImportanceSamplingPathPlot extends JFrame {
+/**
+ * @author QuanLiu
+ *
+ */
+public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 
 	static int numberOfSimulations = 1000;
 	static double stratTime = 0.0;
@@ -39,26 +45,29 @@ public class ImportanceSamplingPathPlot extends JFrame {
 	static double riskFreeRate = 0.02;
 	static double volatilityTerm = 0.15;
 	
-	double upperBoundFactorB = 150;
-	double upperBoundExponentialDelta1 = 0.06;
-	double lowerBoundFactorA = 50;
-	double lowerBoundExponentialDelta2 = 0.06;
+	static double upperBoundFactorB = 150;
+	static double upperBoundExponentialDelta1 = 0.06;
+	static double lowerBoundFactorA = 50;
+	static double lowerBoundExponentialDelta2 = 0.06;
+	
+	static int numberOfFirstHiddenLayerNeurons=10;
+	static int numberOfSecondHiddenLayerNeurons=5;
+	
 	static double learningRate = 0.0005;
 	static int numberOfIterationTimes = 50;
 	static double epsilon = 0.000000000000001;
-	
 	
     public static void main(String[] args) {
 
     	
     	
         SwingUtilities.invokeLater(() -> {
-        	ImportanceSamplingPathPlot ex = new ImportanceSamplingPathPlot();
+        	AdaptiveImportanceSamplingPathPlot ex = new AdaptiveImportanceSamplingPathPlot();
             ex.setVisible(true);
         });
     }
     
-    public ImportanceSamplingPathPlot() {
+    public AdaptiveImportanceSamplingPathPlot() {
 
         initUI();
     }
@@ -93,11 +102,24 @@ public class ImportanceSamplingPathPlot extends JFrame {
 				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
-		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
-				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
 		
-		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
+		
+		//AIS value
+		AdaGradAISCall gradientDescentAISCall = new AdaGradAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
+				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon, eta);
+		double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
+		double[][][] weightMatrix1AIS = weightMatrixAIS[0];
+		double[][][] weightMatrix2AIS = weightMatrixAIS[1];
+		double[][][] weightMatrix3AIS = weightMatrixAIS[2];
+		UnderlyingPriceUnderAISCall callAIS = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
+				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
+				endTime, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
+				weightMatrix3AIS, eta);
+		double[][] underlyingPriceMatrix = callAIS.getUnderlyingPriceMatrix();
 		
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries seriesU = new XYSeries("Upper Bound");
@@ -141,11 +163,24 @@ public class ImportanceSamplingPathPlot extends JFrame {
 				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
-		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
-				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
 		
-		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
+		
+		//AIS value
+		AdaGradAISCall gradientDescentAISCall = new AdaGradAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
+				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
+				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon, eta);
+		double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
+		double[][][] weightMatrix1AIS = weightMatrixAIS[0];
+		double[][][] weightMatrix2AIS = weightMatrixAIS[1];
+		double[][][] weightMatrix3AIS = weightMatrixAIS[2];
+		UnderlyingPriceUnderAISCall callAIS = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
+				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
+				endTime, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
+				weightMatrix3AIS, eta);
+		double[][] underlyingPriceMatrix = callAIS.getUnderlyingPriceMatrix();
     	
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Double Knock-Out Option", 
@@ -197,17 +232,11 @@ public class ImportanceSamplingPathPlot extends JFrame {
 
 //        chart.getLegend().setFrame(BlockBorder.NONE);
 
-        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound Under Importance Sampling",
+        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound Under Adaptive Importance Sampling",
                         new Font("Serif", Font.BOLD, 24)
                 )
         );
         
-        System.out.println(eta[0]);
-        System.out.println(eta[1]);
-        System.out.println(callIS.getNormalParameters(eta)[0]);
-        System.out.println(callIS.getNormalParameters(eta)[1]);
-
-
 
         
         return chart;

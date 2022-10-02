@@ -31,7 +31,7 @@ public class MersenneTwisterSequence {
 		
 		double[][] randomNumberMatrix = new double[timeSeries.length-1][numberOfSimulations];
 		for(int j = 0; j < numberOfSimulations; j++) {
-			MersenneTwister generator = new MersenneTwister(j);
+			MersenneTwister generator = new MersenneTwister(j+1);
 			for(int i = 0; i < timeSeries.length-1; i++) {
 				randomNumberMatrix[i][j] = generator.nextDouble();
 			}

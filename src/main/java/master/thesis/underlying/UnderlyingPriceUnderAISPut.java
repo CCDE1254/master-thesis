@@ -3,14 +3,14 @@
  */
 package master.thesis.underlying;
 
-import master.thesis.neural.network.NeuralNetworkAISCall;
+import master.thesis.neural.network.NeuralNetworkAISPut;
 import net.finmath.functions.NormalDistribution;
 
 /**
  * @author QuanLiu
  *
  */
-public class UnderlyingPriceUnderAISCall {
+public class UnderlyingPriceUnderAISPut {
 	int numberOfSimulations;
 	int numberOfTimeSteps;
 	int numberOfFirstHiddenLayerNeurons;
@@ -35,7 +35,7 @@ public class UnderlyingPriceUnderAISCall {
 	
 	double[] etaUnderIS;
 
-	public UnderlyingPriceUnderAISCall(int numberOfSimulations, int numberOfTimeSteps,
+	public UnderlyingPriceUnderAISPut(int numberOfSimulations, int numberOfTimeSteps,
 			int numberOfFirstHiddenLayerNeurons, int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix,
 			double initialStockPrice, double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike,
 			double maturity, double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
@@ -66,7 +66,7 @@ public class UnderlyingPriceUnderAISCall {
 	public double[][] getIncrementsMatrixUnderAIS(){
 		double[][] incrementsMatrixUnderAIS = new double[timeSeries.length-1][numberOfSimulations];
 		for(int i = 0; i < numberOfSimulations; i++) {
-			NeuralNetworkAISCall neuralNetwork = new NeuralNetworkAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
+			NeuralNetworkAISPut neuralNetwork = new NeuralNetworkAISPut(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
@@ -113,3 +113,4 @@ public class UnderlyingPriceUnderAISCall {
 		return underlyingPriceMatrix;
 	}
 }
+

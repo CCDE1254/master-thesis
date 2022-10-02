@@ -9,7 +9,7 @@ import master.thesis.underlying.UnderlyingPrice;
  * @author QuanLiu
  *
  */
-public class NeuralNetworkAISCall {
+public class NeuralNetworkAISPut {
 	int numberOfSimulations;
 	int numberOfTimeSteps;
 	int numberOfFirstHiddenLayerNeurons;
@@ -29,7 +29,7 @@ public class NeuralNetworkAISCall {
 	double lowerBoundExponentialDelta2;
 	
 
-	public NeuralNetworkAISCall(int numberOfSimulations, int numberOfTimeSteps, int numberOfFirstHiddenLayerNeurons,
+	public NeuralNetworkAISPut(int numberOfSimulations, int numberOfTimeSteps, int numberOfFirstHiddenLayerNeurons,
 			int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix, double initialStockPrice,
 			double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike, double maturity, double upperBoundFactorB,
 			double upperBoundExponentialDelta1, double lowerBoundFactorA, double lowerBoundExponentialDelta2) {
@@ -51,6 +51,8 @@ public class NeuralNetworkAISCall {
 		this.lowerBoundExponentialDelta2 = lowerBoundExponentialDelta2;
 	}
 	
+
+
 	double[][] multiplyMatrices(double[][] firstMatrix, double[][] secondMatrix) {
 	    double[][] result = new double[firstMatrix.length][secondMatrix[0].length];
 
@@ -237,7 +239,7 @@ public class NeuralNetworkAISCall {
 						- output3[i][0]*normalDistributedRandomNumberMatrix[i+1][iterationStep] - (1.0/2.0 + output3[i][1])*Math.pow(normalDistributedRandomNumberMatrix[i+1][iterationStep], 2.0));
 			}
 			
-			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity
 					*(output3[k][0]/(2.0*output3[k][1]) - normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 	
@@ -265,9 +267,9 @@ public class NeuralNetworkAISCall {
 			}
 			double productOfDensity1 = productOfDensity * Math.pow(-2.0*output3[k][1], -1.0);
 			double productOfDensity2 = productOfDensity;
-			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity1
-					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity2
 					*(Math.pow(output3[k][0],2.0)/(4.0*Math.pow(output3[k][1],2.0)) + normalDistributedRandomNumberMatrix[k+1][iterationStep]*normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 		}
@@ -339,7 +341,7 @@ public class NeuralNetworkAISCall {
 						- output3[i][0]*normalDistributedRandomNumberMatrix[i+1][iterationStep] - (1.0/2.0 + output3[i][1])*Math.pow(normalDistributedRandomNumberMatrix[i+1][iterationStep], 2.0));
 			}
 			
-			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity
 					*(output3[k][0]/(2.0*output3[k][1]) - normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 	
@@ -367,9 +369,9 @@ public class NeuralNetworkAISCall {
 			}
 			double productOfDensity1 = productOfDensity * Math.pow(-2.0*output3[k][1], -1.0);
 			double productOfDensity2 = productOfDensity;
-			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity1
-					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity2
 					*(Math.pow(output3[k][0],2.0)/(4.0*Math.pow(output3[k][1],2.0)) + normalDistributedRandomNumberMatrix[k+1][iterationStep]*normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 		}
@@ -457,7 +459,7 @@ public class NeuralNetworkAISCall {
 						- output3[i][0]*normalDistributedRandomNumberMatrix[i+1][iterationStep] - (1.0/2.0 + output3[i][1])*Math.pow(normalDistributedRandomNumberMatrix[i+1][iterationStep], 2.0));
 			}
 			
-			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta1[k] = (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity
 					*(output3[k][0]/(2.0*output3[k][1]) - normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 	
@@ -485,9 +487,9 @@ public class NeuralNetworkAISCall {
 			}
 			double productOfDensity1 = productOfDensity * Math.pow(-2.0*output3[k][1], -1.0);
 			double productOfDensity2 = productOfDensity;
-			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+			derivativeLossFunctionEta2[k] = -2.0*(Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity1
-					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((underlyingPriceMatrix[timeSeries.length-1][iterationStep] - strike),0.0)*payoffValid,2.0)
+					- (Math.exp(-2.0*riskFreeRate*maturity))*Math.pow(Math.max((-underlyingPriceMatrix[timeSeries.length-1][iterationStep] + strike),0.0)*payoffValid,2.0)
 					*productOfDensity2
 					*(Math.pow(output3[k][0],2.0)/(4.0*Math.pow(output3[k][1],2.0)) + normalDistributedRandomNumberMatrix[k+1][iterationStep]*normalDistributedRandomNumberMatrix[k+1][iterationStep]);
 		}

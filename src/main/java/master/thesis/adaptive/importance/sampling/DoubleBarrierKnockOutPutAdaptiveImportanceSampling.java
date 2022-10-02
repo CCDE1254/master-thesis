@@ -3,15 +3,16 @@
  */
 package master.thesis.adaptive.importance.sampling;
 
-import master.thesis.neural.network.NeuralNetworkAISCall;
-import master.thesis.underlying.UnderlyingPriceUnderAISCall;
+
+import master.thesis.neural.network.NeuralNetworkAISPut;
+import master.thesis.underlying.UnderlyingPriceUnderAISPut;
 import net.finmath.functions.NormalDistribution;
 
 /**
  * @author QuanLiu
  *
  */
-public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
+public class DoubleBarrierKnockOutPutAdaptiveImportanceSampling {
 	int numberOfSimulations;
 	int numberOfTimeSteps;
 	int numberOfFirstHiddenLayerNeurons;
@@ -35,7 +36,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	double[][][] weightMatrix3;
 	
 
-	public DoubleBarrierKnockOutCallAdaptiveImportanceSampling(int numberOfSimulations, int numberOfTimeSteps,
+	public DoubleBarrierKnockOutPutAdaptiveImportanceSampling(int numberOfSimulations, int numberOfTimeSteps,
 			int numberOfFirstHiddenLayerNeurons, int numberOfSecondHiddenLayerNeurons, double[][] randomNumberMatrix,
 			double initialStockPrice, double riskFreeRate, double volatilityTerm, double[] timeSeries, double strike,
 			double maturity, double upperBoundFactorB, double upperBoundExponentialDelta1, double lowerBoundFactorA,
@@ -64,7 +65,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	}
 
 	public double[][] getIncrementsMatrixUnderProposalDistributions() {
-		UnderlyingPriceUnderAISCall underlyingPrice = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+		UnderlyingPriceUnderAISPut underlyingPrice = new UnderlyingPriceUnderAISPut(numberOfSimulations, numberOfTimeSteps,
 				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
 				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
@@ -75,7 +76,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 	}
 	
 	public double[][] getUnderlyingPriceMatrixUnderProposalDistributions() {
-		UnderlyingPriceUnderAISCall underlyingPrice = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
+		UnderlyingPriceUnderAISPut underlyingPrice = new UnderlyingPriceUnderAISPut(numberOfSimulations, numberOfTimeSteps,
 				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
 				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
@@ -98,7 +99,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 					payoffValid = 0.0;
 				}
 			}
-			NeuralNetworkAISCall neural = new NeuralNetworkAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
+			NeuralNetworkAISPut neural = new NeuralNetworkAISPut(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 					numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
 					riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 					upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2);
@@ -117,7 +118,7 @@ public class DoubleBarrierKnockOutCallAdaptiveImportanceSampling {
 				productOfDensity *= Math.pow(-2.0*eta[i][1], 1.0/2.0)*Math.exp(eta[i][0]*eta[i][1]/4.0/eta[i][1])*Math.exp(-eta[i][0]*incrementsMatrixUnderProposalDistribution[i+1][j])
 						*Math.exp(-(1.0/2.0+eta[i][1])*incrementsMatrixUnderProposalDistribution[i+1][j]*incrementsMatrixUnderProposalDistribution[i+1][j]);
 			}
-			discountedPayoffs[j] = Math.max((underlyingPriceMatrix[timeSeries.length-1][j] - strike),0.0)*Math.exp(-riskFreeRate*maturity)*payoffValid
+			discountedPayoffs[j] = Math.max((-underlyingPriceMatrix[timeSeries.length-1][j] + strike),0.0)*Math.exp(-riskFreeRate*maturity)*payoffValid
 					*productOfDensity;
 			
 		}
