@@ -232,7 +232,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 
 //        chart.getLegend().setFrame(BlockBorder.NONE);
 
-        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound Under Adaptive Importance Sampling",
+        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound under Adaptive Importance Sampling",
                         new Font("Serif", Font.BOLD, 24)
                 )
         );

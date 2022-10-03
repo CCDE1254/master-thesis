@@ -302,7 +302,7 @@ public class EstimationErrorPlot extends JFrame {
 
 
 
-        chart.setTitle(new TextTitle("Estimation Error of Double Knock-Out Option Valuation Under IS and AIS method",
+        chart.setTitle(new TextTitle("Estimation Error of Double Knock-Out Option Valuation under IS and AIS method",
                         new Font("Serif", Font.BOLD, 24)
                 )
         );

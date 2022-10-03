@@ -180,12 +180,12 @@ public class MonteCarloPathPlot extends JFrame {
 
 //        chart.getLegend().setFrame(BlockBorder.NONE);
 
-//        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound Under Monte Carlo",
+//        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound under Monte Carlo",
 //                        new Font("Serif", Font.BOLD, 24)
 //                )
 //        );
 
-        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Decreasing Lower Bound Under Monte Carlo",
+        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Decreasing Lower Bound under Monte Carlo",
                 new Font("Serif", Font.BOLD, 24)
         )
         );

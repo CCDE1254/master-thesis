@@ -302,7 +302,7 @@ public class SampleVariancePlot extends JFrame {
 
 
 
-        chart.setTitle(new TextTitle("Sample variance of Double Knock-Out Option Valuation Under IS and AIS method",
+        chart.setTitle(new TextTitle("Sample Variance of Double Knock-Out Option Valuation under IS and AIS method",
                         new Font("Serif", Font.BOLD, 24)
                 )
         );
