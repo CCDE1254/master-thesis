@@ -88,7 +88,7 @@ public class NeuralNetworkAISPut {
 		for(int k = 0; k < (numberOfTimeSteps - 1); k++) {
 			for(int i = 0; i < numberOfTimeSteps; i++) {
 				for(int j = 0; j < numberOfFirstHiddenLayerNeurons; j++) {
-					weightMatrix1[k][i][j] = -0.000000001;
+					weightMatrix1[k][i][j] = 0.000000001;
 				}
 			}
 		}
@@ -101,7 +101,7 @@ public class NeuralNetworkAISPut {
 		for(int k = 0; k < (numberOfTimeSteps - 1); k++) {
 			for(int i = 0; i < numberOfFirstHiddenLayerNeurons + 1; i++) {
 				for(int j = 0; j < numberOfSecondHiddenLayerNeurons; j++) {
-					weightMatrix2[k][i][j] = -0.000000001;
+					weightMatrix2[k][i][j] = 0.000000001;
 				}
 			}
 		}
@@ -114,7 +114,7 @@ public class NeuralNetworkAISPut {
 		for(int k = 0; k < (numberOfTimeSteps - 1); k++) {
 			for(int i = 0; i < numberOfSecondHiddenLayerNeurons + 1; i++) {
 				for(int j = 0; j < 2; j++) {
-					weightMatrix3[k][i][j] = -0.000000001;
+					weightMatrix3[k][i][j] = 0.000000001;
 				}
 			}
 			weightMatrix3[k][0][0] = etaUnderIS[0];

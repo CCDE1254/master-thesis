@@ -36,19 +36,20 @@ import master.thesis.underlying.UnderlyingPriceUnderISCall;
  */
 public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 
-	static int numberOfSimulations = 1000;
-	static double stratTime = 0.0;
-	static double endTime = 10.0;
-	static int numberOfTimeSteps = 20;
-	static double initialStockPrice = 100;
-	static double strike = 150;
+	static double initialStockPrice = 100.0;
 	static double riskFreeRate = 0.02;
 	static double volatilityTerm = 0.15;
 	
-	static double upperBoundFactorB = 150;
+	static double maturity = 10.0;//set evaluation time to be 0
+	static double strike = 150.0;
+	
+	static double upperBoundFactorB = 150.0;
 	static double upperBoundExponentialDelta1 = 0.06;
-	static double lowerBoundFactorA = 50;
+	static double lowerBoundFactorA = 50.0;
 	static double lowerBoundExponentialDelta2 = 0.06;
+	
+	static int numberOfSimulations = 1000;
+	static int numberOfTimeSteps = 20;
 	
 	static int numberOfFirstHiddenLayerNeurons=10;
 	static int numberOfSecondHiddenLayerNeurons=5;
@@ -90,7 +91,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
     private XYDataset createDataset() {
 
     	//generate array of time points
-    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(stratTime, endTime, numberOfTimeSteps);
+    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(0.0, maturity, numberOfTimeSteps);
 		double[] timeSeries = time.getTimeSeries();
 		
 		//generate random number sequence under given time series
@@ -99,7 +100,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		
 
 		AdaGradISCall parameterISCall = new AdaGradISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
 		
@@ -107,7 +108,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		//AIS value
 		AdaGradAISCall gradientDescentAISCall = new AdaGradAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon, eta);
 		double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
 		double[][][] weightMatrix1AIS = weightMatrixAIS[0];
@@ -116,7 +117,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		UnderlyingPriceUnderAISCall callAIS = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
 				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
-				endTime, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
 				lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
 				weightMatrix3AIS, eta);
 		double[][] underlyingPriceMatrix = callAIS.getUnderlyingPriceMatrix();
@@ -151,7 +152,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
     private JFreeChart createChart(final XYDataset dataset) {
 
     	//generate array of time points
-    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(stratTime, endTime, numberOfTimeSteps);
+    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(0.0, maturity, numberOfTimeSteps);
 		double[] timeSeries = time.getTimeSeries();
 		
 		//generate random number sequence under given time series
@@ -160,7 +161,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		
 
 		AdaGradISCall parameterISCall = new AdaGradISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
 		
@@ -168,7 +169,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		//AIS value
 		AdaGradAISCall gradientDescentAISCall = new AdaGradAISCall(numberOfSimulations, numberOfTimeSteps, numberOfFirstHiddenLayerNeurons,
 				numberOfSecondHiddenLayerNeurons, randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon, eta);
 		double[][][][] weightMatrixAIS = gradientDescentAISCall.getOptimalWeightMatrix();
 		double[][][] weightMatrix1AIS = weightMatrixAIS[0];
@@ -177,7 +178,7 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 		UnderlyingPriceUnderAISCall callAIS = new UnderlyingPriceUnderAISCall(numberOfSimulations, numberOfTimeSteps,
 				numberOfFirstHiddenLayerNeurons, numberOfSecondHiddenLayerNeurons, randomNumberMatrix,
 				initialStockPrice, riskFreeRate, volatilityTerm, timeSeries, strike,
-				endTime, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
+				maturity, upperBoundFactorB, upperBoundExponentialDelta1, lowerBoundFactorA,
 				lowerBoundExponentialDelta2, weightMatrix1AIS, weightMatrix2AIS,
 				weightMatrix3AIS, eta);
 		double[][] underlyingPriceMatrix = callAIS.getUnderlyingPriceMatrix();

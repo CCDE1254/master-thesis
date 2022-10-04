@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry exported="true" kind="lib" path="/org.jzy3d.jzy3d-master"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/finmath-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/numerical-methods-lecture"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-16">

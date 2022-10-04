@@ -126,7 +126,6 @@ public class DoubleBarrierKnockOutOptionValuationExperiment {
 		System.out.println("Standard error of double knock-out call under Adaptive Importance Sampling is: " + callAIS.getStandardError());
 		System.out.println();
 		System.out.println();
-		System.out.println();
 		
 		
 		//analytic value

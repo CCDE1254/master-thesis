@@ -35,19 +35,20 @@ import master.thesis.timediscretization.TimeDiscretizationWithEqualTimeStepSize;
  */
 public class EstimationErrorPlot extends JFrame {
 
-	static int numberOfSimulations = 1000;
-	static double stratTime = 0.0;
-	static double maturity = 10.0;
-	static int numberOfTimeSteps = 20;
-	static double initialStockPrice = 100;
-	static double strike = 150;
+	static double initialStockPrice = 100.0;
 	static double riskFreeRate = 0.02;
 	static double volatilityTerm = 0.15;
 	
-	static double upperBoundFactorB = 150;
+	static double maturity = 10.0;//set evaluation time to be 0
+	static double strike = 150.0;
+	
+	static double upperBoundFactorB = 150.0;
 	static double upperBoundExponentialDelta1 = 0.06;
-	static double lowerBoundFactorA = 50;
+	static double lowerBoundFactorA = 50.0;
 	static double lowerBoundExponentialDelta2 = 0.06;
+	
+	static int numberOfSimulations = 1000;
+	static int numberOfTimeSteps = 20;
 	
 	static int numberOfFirstHiddenLayerNeurons=10;
 	static int numberOfSecondHiddenLayerNeurons=5;

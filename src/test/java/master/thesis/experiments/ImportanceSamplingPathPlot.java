@@ -30,19 +30,24 @@ import master.thesis.underlying.UnderlyingPriceUnderISCall;
 
 public class ImportanceSamplingPathPlot extends JFrame {
 
-	static int numberOfSimulations = 1000;
-	static double stratTime = 0.0;
-	static double endTime = 10.0;
-	static int numberOfTimeSteps = 20;
-	static double initialStockPrice = 100;
-	static double strike = 150;
+	static double initialStockPrice = 100.0;
 	static double riskFreeRate = 0.02;
 	static double volatilityTerm = 0.15;
 	
-	double upperBoundFactorB = 150;
-	double upperBoundExponentialDelta1 = 0.06;
-	double lowerBoundFactorA = 50;
-	double lowerBoundExponentialDelta2 = 0.06;
+	static double maturity = 10.0;//set evaluation time to be 0
+	static double strike = 150.0;
+	
+	static double upperBoundFactorB = 150.0;
+	static double upperBoundExponentialDelta1 = 0.06;
+	static double lowerBoundFactorA = 50.0;
+	static double lowerBoundExponentialDelta2 = 0.06;
+	
+	static int numberOfSimulations = 1000;
+	static int numberOfTimeSteps = 20;
+	
+	static int numberOfFirstHiddenLayerNeurons=10;
+	static int numberOfSecondHiddenLayerNeurons=5;
+	
 	static double learningRate = 0.0005;
 	static int numberOfIterationTimes = 50;
 	static double epsilon = 0.000000000000001;
@@ -81,7 +86,7 @@ public class ImportanceSamplingPathPlot extends JFrame {
     private XYDataset createDataset() {
 
     	//generate array of time points
-    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(stratTime, endTime, numberOfTimeSteps);
+    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(0.0, maturity, numberOfTimeSteps);
 		double[] timeSeries = time.getTimeSeries();
 		
 		//generate random number sequence under given time series
@@ -90,11 +95,11 @@ public class ImportanceSamplingPathPlot extends JFrame {
 		
 
 		AdaGradISCall parameterISCall = new AdaGradISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
 		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
 		
 		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
@@ -129,7 +134,7 @@ public class ImportanceSamplingPathPlot extends JFrame {
     private JFreeChart createChart(final XYDataset dataset) {
 
     	//generate array of time points
-    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(stratTime, endTime, numberOfTimeSteps);
+    	TimeDiscretizationWithEqualTimeStepSize time = new TimeDiscretizationWithEqualTimeStepSize(0.0, maturity, numberOfTimeSteps);
 		double[] timeSeries = time.getTimeSeries();
 		
 		//generate random number sequence under given time series
@@ -138,11 +143,11 @@ public class ImportanceSamplingPathPlot extends JFrame {
 		
 
 		AdaGradISCall parameterISCall = new AdaGradISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, learningRate, numberOfIterationTimes, epsilon);
 		double[] eta = parameterISCall.getOptimalEta();
 		UnderlyingPriceUnderISCall callIS = new UnderlyingPriceUnderISCall(numberOfSimulations, numberOfTimeSteps,  randomNumberMatrix, initialStockPrice,
-				riskFreeRate, volatilityTerm, timeSeries, strike, endTime, upperBoundFactorB,
+				riskFreeRate, volatilityTerm, timeSeries, strike, maturity, upperBoundFactorB,
 				upperBoundExponentialDelta1, lowerBoundFactorA, lowerBoundExponentialDelta2, eta);
 		
 		double[][] underlyingPriceMatrix = callIS.getUnderlyingPriceMatrix();
