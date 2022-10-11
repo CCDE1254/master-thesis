@@ -37,24 +37,24 @@ import master.thesis.underlying.UnderlyingPriceUnderISCall;
 public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 
 	static double initialStockPrice = 100.0;
-	static double riskFreeRate = 0.02;
+	static double riskFreeRate = 0.0;
 	static double volatilityTerm = 0.15;
 	
 	static double maturity = 10.0;//set evaluation time to be 0
-	static double strike = 150.0;
+	static double strike = 80.0;
 	
 	static double upperBoundFactorB = 150.0;
-	static double upperBoundExponentialDelta1 = 0.06;
+	static double upperBoundExponentialDelta1 = 0.03;
 	static double lowerBoundFactorA = 50.0;
-	static double lowerBoundExponentialDelta2 = 0.06;
+	static double lowerBoundExponentialDelta2 = 0.03;
 	
-	static int numberOfSimulations = 1000;
-	static int numberOfTimeSteps = 20;
+	static int numberOfSimulations = 10000;
+	static int numberOfTimeSteps = 100;
 	
 	static int numberOfFirstHiddenLayerNeurons=10;
 	static int numberOfSecondHiddenLayerNeurons=5;
 	
-	static double learningRate = 0.0005;
+	static double learningRate = 0.0000003;
 	static int numberOfIterationTimes = 50;
 	static double epsilon = 0.000000000000001;
 	
@@ -233,8 +233,8 @@ public class AdaptiveImportanceSamplingPathPlot extends JFrame {
 
 //        chart.getLegend().setFrame(BlockBorder.NONE);
 
-        chart.setTitle(new TextTitle("Underlying Path Simulation Example of Double Knock-Out Option with Increasing Upper Bound and Increasing Lower Bound under Adaptive Importance Sampling",
-                        new Font("Serif", Font.BOLD, 24)
+        chart.setTitle(new TextTitle("Adaptive Importance Sampling, N = " + numberOfTimeSteps + " , λ = " + learningRate,
+                        new Font("Serif", Font.BOLD, 40)
                 )
         );
         
